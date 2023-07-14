@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Azure Event Hub Demo</title>
+</head>
+<body>
+  <h1>Producer</h1>
+  <textarea id="dataInput" rows="5" cols="50" placeholder="Enter JSON data"></textarea>
+  <button onclick="sendData()">Send Data</button>
+
+  <h1>Consumer</h1>
+  <div id="dataOutput"></div>
+
+  <script>
+    async function fetchData() {
+      const response = await fetch('/consumer');
+      const data = await response.json();
+      const dataOutput = document.getElementById('dataOutput');
+      dataOutput.textContent = 'Received Data: ' + JSON.stringify(data);
+    }
+
+    function sendData() {
+      const dataInput = document.getElementById('dataInput');
+      const dataOutput = document.getElementById('dataOutput');
+
+      const data = JSON.parse(dataInput.value);
+      fetch('/producer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+        .then(() => {
+          dataOutput.textContent = 'Data sent: ' + JSON.stringify(data);
+          dataInput.value = '';
+          fetchData();
+        })
+        .catch((error) => {
+          console.error('Error sending data:', error);
+        });
+    }
+
+    // Fetch initial data when the page loads
+    fetchData();
+  </script>
+</body>
+</html>
